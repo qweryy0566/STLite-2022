@@ -63,7 +63,7 @@ class map {
     ~Node() {
       if (val) delete val;
     }
-  } * head;  // 头节点，空。
+  } *head;  // 头节点，空。
   size_t siz{0};
 
   void Copy(Node *&o, const Node *rhs) {
@@ -313,7 +313,8 @@ class map {
   map(const map &other) : siz{other.siz} { Copy(head, other.head); }
 
   map &operator=(const map &other) {
-    if (this != &other) siz = other.siz, Clear(head), Copy(head, other.head);
+    if (this != &other)
+      siz = other.siz, Clear(head), Copy(head, other.head);
     return *this;
   }
 
@@ -379,7 +380,7 @@ class map {
   /**
    * clears the contents
    */
-  void clear() { Clear(head->ch[0]), head->ch[0] = nullptr, siz = 0; }
+  void clear() { Clear(head->ch[0]), siz = 0; }
   /**
    * insert an element.
    * return a pair, the first of the pair is
