@@ -13,6 +13,19 @@
 
 namespace sjtu {
 
+struct my_true_type {};
+struct my_false_type {};
+
+template <class T>
+struct my_type_traits {
+  using difference_type = typename T::difference_type;
+  using value_type = typename T::value_type;
+  using pointer = typename T::pointer;
+  using reference = typename T::reference;
+  using iterator_category = typename T::iterator_category;
+  using iterator_assignable = typename T::iterator_assignable;
+};
+
 template <class Key, class T, class Compare = std::less<Key> >
 class map {
  public:
@@ -129,7 +142,6 @@ class map {
   class const_iterator;
   class iterator {
     friend class map;
-
     map *source{nullptr};
     Node *at{nullptr};
 
@@ -148,6 +160,7 @@ class map {
     using pointer = T *;
     using reference = T &;
     using iterator_category = std::output_iterator_tag;
+    using iterator_assignable = my_true_type;
     // If you are interested in type_traits, toy_traits_test provides a place to
     // practice. But the method used in that test is old and rarely used, so you
     // may explore on your own.
@@ -224,6 +237,13 @@ class map {
     const Node *at{nullptr};
 
    public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = T;
+    using pointer = T *;
+    using reference = T &;
+    using iterator_category = std::output_iterator_tag;
+    using iterator_assignable = my_false_type;
+    
     const_iterator() = default;
     const_iterator(const const_iterator &other)
         : source{other.source}, at{other.at} {}
@@ -273,7 +293,7 @@ class map {
      * a operator to check whether two iterators are same (pointing to the same
      * memory).
      */
-    const value_type &operator*() const { return *at->val; }
+    const map::value_type &operator*() const { return *at->val; }
     bool operator==(const iterator &rhs) const { return at == rhs.at; }
     bool operator==(const const_iterator &rhs) const { return at == rhs.at; }
     /**
@@ -282,7 +302,7 @@ class map {
     bool operator!=(const iterator &rhs) const { return at != rhs.at; }
     bool operator!=(const const_iterator &rhs) const { return at != rhs.at; }
 
-    const value_type *operator->() const noexcept { return at->val; }
+    const map::value_type *operator->() const noexcept { return at->val; }
   };
 
   map() {
