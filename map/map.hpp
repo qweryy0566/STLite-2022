@@ -95,6 +95,13 @@ class map {
     return at && at->color == RED ? RED : BLACK;
   }
 
+  Node *Find(const Key &x) const {
+    Node *at = head->ch[0];
+    while (at && (lt(at->val->first, x) || lt(x, at->val->first)))
+      at = at->ch[lt(at->val->first, x)];
+    return at ? at : head;
+  }
+
   void InsertAdjust(Node *at) {
     while (Color(at->p) == RED) {
       bool s = at->Check(), sp = at->p->Check();
@@ -117,9 +124,9 @@ class map {
       Node *bro = at->p->ch[s ^ 1];
       if (Color(bro) == RED)  // 转为下一种情况。
         Rotate(at->p, s ^ 1), bro = at->p->ch[s ^ 1];
-      if (!bro || Color(bro->ch[0]) == BLACK && Color(bro->ch[1]) == BLACK) {
-        if (bro) bro->color = RED;  // TODO : 不理解为什么 bro 可能为空。
-        at = at->p;  // 若 p 为红，下一次就会跳出，一重黑转到 p 上。
+      if (Color(bro->ch[0]) == BLACK && Color(bro->ch[1]) == BLACK) {
+        // 之前其它部分有 bug，由红黑树性质可以证明 bro 此时一定非空。
+        bro->color = RED, at = at->p;  // 若 p 为红，一重黑转到 p 上。
       } else {
         if (Color(bro->ch[s]) == RED)  // 将红节点转到外侧变为下一种情况。
           Rotate(bro, s), bro = at->p->ch[s ^ 1];
@@ -326,12 +333,12 @@ class map {
    * `index_out_of_bound'
    */
   T &at(const Key &key) {
-    Node *tmp = find(key).at;
+    Node *tmp = Find(key);
     if (tmp == head) throw index_out_of_bound{};
     return tmp->val->second;
   }
   const T &at(const Key &key) const {
-    const Node *tmp = find(key).at;
+    const Node *tmp = Find(key);
     if (tmp == head) throw index_out_of_bound{};
     return tmp->val->second;
   }
@@ -341,7 +348,7 @@ class map {
    *   performing an insertion if such key does not already exist.
    */
   T &operator[](const Key &key) {
-    Node *tmp = find(key).at;
+    Node *tmp = Find(key);
     if (tmp == head) return insert({key, T{}}).first.at->val->second;
     return tmp->val->second;
   }
@@ -388,7 +395,7 @@ class map {
    * insertion), the second one is true if insert successfully, or false.
    */
   pair<iterator, bool> insert(const value_type &value) {
-    Node *at = find(value.first).at, *fa = head;
+    Node *at = Find(value.first), *fa = head;
     if (at != head) return {{this, at}, 0};
     at = head->ch[0];
     head->color = BLACK, head->ch[1]->color = RED;  // 头节点的颜色自由。
@@ -412,7 +419,7 @@ class map {
     Node *at = pos.at;
     head->color = RED, head->ch[1]->color = BLACK;  // 头节点的颜色自由。
     if (at->ch[0] && at->ch[1]) {
-      Node *tmp = at->ch[1], x;
+      Node *tmp = at->ch[1];
       while (tmp->ch[0]) tmp = tmp->ch[0];
       // 注意：不能仅交换值。
       std::swap(tmp->color, at->color);
@@ -435,6 +442,7 @@ class map {
       at->ch[s]->color = BLACK;
     } else {
       EraseAdjust(at);
+      // 可以证明，这里不需要单独调整根的颜色（T13.4-1）。
       at->p->ch[at->Check()] = nullptr;
     }
     delete at, --siz;
@@ -446,7 +454,7 @@ class map {
    *     since this container does not allow duplicates.
    * The default method of check the equivalence is !(a < b || b > a)
    */
-  size_t count(const Key &key) const { return find(key).at != head; }
+  size_t count(const Key &key) const { return Find(key) != head; }
   /**
    * Finds an element with key equivalent to key.
    * key value of the element to search for.
@@ -454,20 +462,8 @@ class map {
    *   If no such element is found, past-the-end (see end()) iterator is
    * returned.
    */
-  iterator find(const Key &key) {
-    Node *at = head->ch[0];
-    while (at && (lt(at->val->first, key) || lt(key, at->val->first)))
-      at = at->ch[lt(at->val->first, key)];
-    if (!at) at = head;
-    return {this, at};
-  }
-  const_iterator find(const Key &key) const {
-    const Node *at = head->ch[0];
-    while (at && (lt(at->val->first, key) || lt(key, at->val->first)))
-      at = at->ch[lt(at->val->first, key)];
-    if (!at) at = head;
-    return {this, at};
-  }
+  iterator find(const Key &key) { return {this, Find(key)}; }
+  const_iterator find(const Key &key) const { return {this, Find(key)}; }
 };
 
 }  // namespace sjtu
