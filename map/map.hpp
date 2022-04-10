@@ -390,8 +390,8 @@ class map {
     head->color = BLACK, head->ch[1]->color = RED;  // 头节点的颜色自由。
     while (at)
       fa = at, at = at->ch[lt(at->val->first, value.first)];
-    bool s = fa != head && lt(fa->val->first, value.first);
-    fa->ch[s] = at = new Node{value, RED, fa};
+    bool s = fa == head || lt(value.first, fa->val->first);
+    fa->ch[s ^ 1] = at = new Node{value, RED, fa};
     // 新的叶子一定为红。
     ++siz, InsertAdjust(at);
     head->ch[0]->color = BLACK;
