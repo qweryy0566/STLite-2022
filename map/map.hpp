@@ -180,9 +180,9 @@ class map {
     // value_type: https://blog.csdn.net/u014299153/article/details/72419713
     // About iterator_category: https://en.cppreference.com/w/cpp/iterator
     using difference_type = std::ptrdiff_t;
-    using value_type = map::value_type;
-		using pointer = value_type*;
-		using reference = value_type&;
+    using value_type = T;
+    using pointer = T *;
+    using reference = T &;
     using iterator_category = std::output_iterator_tag;
     using iterator_assignable = my_true_type;
     // If you are interested in type_traits, toy_traits_test provides a place to
@@ -200,6 +200,7 @@ class map {
       operator++();
       return tmp;
     }
+
     iterator &operator++() {
       Node *tmp = Next(at);
       if (tmp == source->head->ch[1]) throw invalid_iterator{};  // end() + 1
@@ -212,6 +213,7 @@ class map {
       operator--();
       return tmp;
     }
+
     iterator &operator--() {
       Node *tmp = Pre(at);
       if (!tmp) throw invalid_iterator{};  // begin() - 1
@@ -222,22 +224,22 @@ class map {
      * a operator to check whether two iterators are same (pointing to the same
      * memory).
      */
+    map::value_type &operator*() const { return *at->val; }
     bool operator==(const iterator &rhs) const { return at == rhs.at; }
     bool operator==(const const_iterator &rhs) const { return at == rhs.at; }
-
-    bool operator!=(const iterator &rhs) const { return at != rhs.at; }
-    bool operator!=(const const_iterator &rhs) const { return at != rhs.at; }
     /**
      * some other operator for iterator.
      */
-    value_type &operator*() const { return *at->val; }
+    bool operator!=(const iterator &rhs) const { return at != rhs.at; }
+    bool operator!=(const const_iterator &rhs) const { return at != rhs.at; }
+
     /**
      * for the support of it->first.
      * See
      * <http://kelvinh.github.io/blog/2013/11/20/overloading-of-member-access-operator-dash-greater-than-symbol-in-cpp/>
      * for help.
      */
-    value_type *operator->() const noexcept { return at->val; }
+    map::value_type *operator->() const noexcept { return at->val; }
   };
   class const_iterator {
     // it should has similar member method as iterator.
@@ -248,9 +250,9 @@ class map {
 
    public:
     using difference_type = std::ptrdiff_t;
-    using value_type = map::value_type;
-		using pointer = value_type*;
-		using reference = value_type&;
+    using value_type = T;
+    using pointer = T *;
+    using reference = T &;
     using iterator_category = std::output_iterator_tag;
     using iterator_assignable = my_false_type;
 
@@ -267,6 +269,7 @@ class map {
       operator++();
       return tmp;
     }
+
     const_iterator &operator++() {
       const Node *tmp = Next(at);
       if (tmp == source->head->ch[1]) throw invalid_iterator{};  // end() + 1
@@ -279,6 +282,7 @@ class map {
       operator--();
       return tmp;
     }
+
     const_iterator &operator--() {
       const Node *tmp = Pre(at);
       if (!tmp) throw invalid_iterator{};  // begin() - 1
@@ -289,16 +293,16 @@ class map {
      * a operator to check whether two iterators are same (pointing to the same
      * memory).
      */
+    const map::value_type &operator*() const { return *at->val; }
     bool operator==(const iterator &rhs) const { return at == rhs.at; }
     bool operator==(const const_iterator &rhs) const { return at == rhs.at; }
-
-    bool operator!=(const iterator &rhs) const { return at != rhs.at; }
-    bool operator!=(const const_iterator &rhs) const { return at != rhs.at; }
     /**
      * some other operator for iterator.
      */
-    const value_type &operator*() const { return *at->val; }
-    const value_type *operator->() const noexcept { return at->val; }
+    bool operator!=(const iterator &rhs) const { return at != rhs.at; }
+    bool operator!=(const const_iterator &rhs) const { return at != rhs.at; }
+
+    const map::value_type *operator->() const noexcept { return at->val; }
   };
 
   map() {
