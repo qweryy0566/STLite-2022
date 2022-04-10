@@ -81,7 +81,7 @@ class map {
     x->ch[s] = y;
     if (y) y->p = x;
   }
-   void Rotate(Node *x, const bool &s) {
+  void Rotate(Node *x, const bool &s) {
     Node *y = x->ch[s];
     Link(x, s, y->ch[s ^ 1]);
     Link(x->p, x->Check(), y);
