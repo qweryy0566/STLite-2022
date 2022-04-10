@@ -94,12 +94,29 @@ class map {
   friend Colors Color(Node *at) {
     return at && at->color == RED ? RED : BLACK;
   }
-
   Node *Find(const Key &x) const {
     Node *at = head->ch[0];
     while (at && (lt(at->val->first, x) || lt(x, at->val->first)))
       at = at->ch[lt(at->val->first, x)];
     return at ? at : head;
+  }
+  friend Node *Next(const Node *at) {
+    if (at->ch[1])
+      for (at = at->ch[1]; at->ch[0]; at = at->ch[0]);
+    else {
+      for (; at->p && at->Check(); at = at->p);
+      at = at->p;
+    }
+    return const_cast<Node *>(at);
+  }
+  friend Node *Pre(const Node *at) {
+    if (at->ch[0])
+      for (at = at->ch[0]; at->ch[1]; at = at->ch[1]);
+    else {
+      for (; at->p && !at->Check(); at = at->p);
+      at = at->p;
+    }
+    return const_cast<Node *>(at);
   }
 
   void InsertAdjust(Node *at) {
@@ -185,13 +202,7 @@ class map {
     }
 
     iterator &operator++() {
-      Node *tmp = at;
-      if (tmp->ch[1]) {
-        for (tmp = tmp->ch[1]; tmp->ch[0]; tmp = tmp->ch[0]);
-      } else {
-        for (; tmp->p && tmp->Check(); tmp = tmp->p);
-        tmp = tmp->p;
-      }
+      Node *tmp = Next(at);
       if (tmp == source->head->ch[1]) throw invalid_iterator{};  // end() + 1
       at = tmp;
       return *this;
@@ -204,13 +215,7 @@ class map {
     }
 
     iterator &operator--() {
-      Node *tmp = at;
-      if (tmp->ch[0]) {
-        for (tmp = tmp->ch[0]; tmp->ch[1]; tmp = tmp->ch[1]);
-      } else {
-        for (; tmp->p && !tmp->Check(); tmp = tmp->p);
-        tmp = tmp->p;
-      }
+      Node *tmp = Pre(at);
       if (!tmp) throw invalid_iterator{};  // begin() - 1
       at = tmp;
       return *this;
@@ -250,7 +255,7 @@ class map {
     using reference = T &;
     using iterator_category = std::output_iterator_tag;
     using iterator_assignable = my_false_type;
-    
+
     const_iterator() = default;
     const_iterator(const const_iterator &other)
         : source{other.source}, at{other.at} {}
@@ -266,13 +271,7 @@ class map {
     }
 
     const_iterator &operator++() {
-      const Node *tmp = at;
-      if (tmp->ch[1]) {
-        for (tmp = tmp->ch[1]; tmp->ch[0]; tmp = tmp->ch[0]);
-      } else {
-        for (; tmp->p && tmp->Check(); tmp = tmp->p);
-        tmp = tmp->p;
-      }
+      const Node *tmp = Next(at);
       if (tmp == source->head->ch[1]) throw invalid_iterator{};  // end() + 1
       at = tmp;
       return *this;
@@ -285,13 +284,7 @@ class map {
     }
 
     const_iterator &operator--() {
-      const Node *tmp = at;
-      if (tmp->ch[0]) {
-        for (tmp = tmp->ch[0]; tmp->ch[1]; tmp = tmp->ch[1]);
-      } else {
-        for (; tmp->p && !tmp->Check(); tmp = tmp->p);
-        tmp = tmp->p;
-      }
+      const Node *tmp = Pre(at);
       if (!tmp) throw invalid_iterator{};  // begin() - 1
       at = tmp;
       return *this;
