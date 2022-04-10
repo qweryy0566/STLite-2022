@@ -81,10 +81,10 @@ class map {
     x->ch[s] = y;
     if (y) y->p = x;
   }
-  void Rotate(Node *x, const bool &s) {
-    Node *y = x->ch[s], *fa = x->p;
+   void Rotate(Node *x, const bool &s) {
+    Node *y = x->ch[s];
     Link(x, s, y->ch[s ^ 1]);
-    Link(fa, x->Check(), y);
+    Link(x->p, x->Check(), y);
     Link(y, s ^ 1, x);
     std::swap(x->color, y->color);  // 调整颜色。
   }
