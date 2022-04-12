@@ -48,9 +48,8 @@ class linked_hashmap {
   Equal equal;
 
   void ChangeSpace(const int &d) {
-    delete[] buc;
     len = d > 0 ? len << d : len >> -d;
-    buc = new Node *[len]{nullptr};
+    delete[] buc, buc = new Node *[len]{nullptr};
     size_t index;
     for (Node *it = hd->time_nxt; it != tl; it = it->time_nxt) {
       index = hash(it->val->first) % len;
@@ -109,8 +108,8 @@ class linked_hashmap {
     // About iterator_category: https://en.cppreference.com/w/cpp/iterator
     using difference_type = std::ptrdiff_t;
     using value_type = linked_hashmap::value_type;
-		using pointer = value_type*;
-		using reference = value_type&;
+    using pointer = value_type*;
+    using reference = value_type&;
     using iterator_category = std::output_iterator_tag;
 
     iterator() = default;
@@ -170,8 +169,8 @@ class linked_hashmap {
    public:
     using difference_type = std::ptrdiff_t;
     using value_type = linked_hashmap::value_type;
-		using pointer = value_type*;
-		using reference = value_type&;
+    using pointer = value_type*;
+    using reference = value_type&;
     using iterator_category = std::output_iterator_tag;
 
     const_iterator() = default;
