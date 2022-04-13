@@ -6,7 +6,6 @@
 
 // only for std::equal_to<T> and std::hash<T>
 #include <cstddef>
-#include <cstring>
 #include <functional>
 
 #include "exceptions.hpp"
@@ -48,7 +47,7 @@ class linked_hashmap {
   Equal equal;
 
   void ChangeSpace(const int &d) {
-    len = d > 0 ? len << d : len >> -d;
+    len = d > 0 ? len << d | 1 : len >> -d;
     delete[] buc, buc = new Node *[len]{nullptr};
     size_t index;
     for (Node *it = hd->time_nxt; it != tl; it = it->time_nxt) {
@@ -58,7 +57,7 @@ class linked_hashmap {
   }
 
   Node *Add(const value_type &key) {
-    if (load++ >= len) ChangeSpace(1);
+    if (load++ > len) ChangeSpace(1);
     size_t index = hash(key.first) % len;
     Node *p{new Node{key, tl->time_lst, tl, buc[index]}};
     tl->time_lst = tl->time_lst->time_nxt = p;
@@ -69,8 +68,10 @@ class linked_hashmap {
     p->time_lst->time_nxt = p->time_nxt;
     p->time_nxt->time_lst = p->time_lst;
     --load, delete p;
+    if (len > LEN && load << 2 < len) ChangeSpace(-1);
   }
   void ClearNode() {
+    len = LEN;
     Node *it = hd->time_nxt, *tmp;
     while (it != tl) tmp = it->time_nxt, Del(it), it = tmp;
   }
@@ -308,7 +309,7 @@ class linked_hashmap {
    */
   void clear() {
     ClearNode();
-    delete[] buc, buc = new Node *[len = LEN]{nullptr};
+    delete[] buc, buc = new Node *[len]{nullptr};
   }
 
   /**
@@ -339,7 +340,6 @@ class linked_hashmap {
       it->nxt = it->nxt->nxt;
     }
     Del(pos.at);
-    if (len > LEN && load << 2 < len) ChangeSpace(-1);
   }
 
   /**
