@@ -29,7 +29,7 @@ class linked_hashmap {
   using value_type = pair<const Key, T>;
 
  private:
-  const size_t LEN = 13;
+  static const size_t LEN = 13;
   struct Node {
     value_type *val;
     Node *time_lst{nullptr}, *time_nxt{nullptr}, *nxt{nullptr};
